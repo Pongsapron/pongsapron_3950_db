@@ -1,6 +1,11 @@
-import getpass
+import os
 import mysql.connector
+from dotenv import load_dotenv
 from mysql.connector import Error
+
+# Load DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE from .env
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path=env_path, override=True)
 
 TABLES = {
     "movies": """
@@ -32,16 +37,16 @@ TABLES = {
 }
 
 def main():
-    user = input("Enter username: ")
-    password = getpass.getpass("Enter password: ")
-    db_name = "movies_3950_db"
-
     connection = None
+    cursor = None
     try:
         connection = mysql.connector.connect(
-            host="localhost", user=user, password=password, database=db_name
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USERNAME"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_DATABASE"),
         )
-        print(f"Connected successfully to {db_name}")
+        print(f"Connected successfully to {os.getenv('DB_DATABASE')}")
 
         cursor = connection.cursor()
 
@@ -61,10 +66,10 @@ def main():
     except Error as e:
         print(f"Error: {e}")
     finally:
-        if connection is not None and connection.is_connected():
+        if cursor is not None:
             cursor.close()
+        if connection is not None and connection.is_connected():
             connection.close()
 
 if __name__ == "__main__":
     main()
-
